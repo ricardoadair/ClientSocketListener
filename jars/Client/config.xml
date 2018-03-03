@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<client_send_demo>
+	<configuraciones>
+		<!--Ip servidor-->
+		<server_ip>adria.inaoep.mx</server_ip>
+		<!--Puerto Destinado al Servicio-->
+		<puerto>6584</puerto>
+		<!--Prefijo archivo log-->
+		<archivo_log>ClientSendDemo</archivo_log>
+	</configuraciones>
+</client_send_demo>
