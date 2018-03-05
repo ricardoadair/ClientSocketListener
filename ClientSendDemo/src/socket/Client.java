@@ -38,8 +38,8 @@ public class Client extends Thread
 		DataInputStream entrada; 
 		try
 		{ 
-			mframe.agregarLineaTextLogConFechaHora( "Intentando conectarse con el Servidor [" + ip_server + ":" + puerto + "]" );   
-
+			String newLine = System.getProperty("line.separator");
+			mframe.agregarLineaTextLogConFechaHora( "Intentando conectarse con el Servidor [" + ip_server + ":" + puerto + "]" );  
 			conexion = new Socket( ip_server, puerto );
 			salida = new DataOutputStream( conexion.getOutputStream() );
 			entrada = new DataInputStream( conexion.getInputStream() );
@@ -50,10 +50,9 @@ public class Client extends Thread
 				String lon = punto.getLongitud().toString();
 				String lat = punto.getLatitud().toString();
 				String id = String.valueOf(punto.getDispositivoId());
-				salida.writeBytes( id + ";" + lon + ";" + lat );
-				String newLine = System.getProperty("line.separator");
-				 
+				salida.writeBytes( id + ";" + lon + ";" + lat ); 
 				salida.writeBytes(newLine);
+				
 				String mensaje_confirmación = entrada.readUTF();
 				if(mensaje_confirmación.equals("Correcto"))
 				{
@@ -63,6 +62,9 @@ public class Client extends Thread
 				{
 					mframe.agregarLineaTextLogConFechaHora( "Error al ingresar (latitud, longitud) del dispositivo ["+ id +"]: ("+ lat + "," + lon + ")" );
 				}		
+				
+				salida.writeBytes( "close" ); 
+				salida.writeBytes(newLine);
 				conexion.close();
 				mframe.agregarLineaTextLogConFechaHora("Se cerro la comunicación con el Servidor" ); 
 			}
