@@ -47,6 +47,15 @@ public class BDConnection {
 		  				    	  		  	}
 		  				    	  		}	
 		  				    	    );
+		  				    	    add(
+		  				    	    	new HashMap<String,Object>() 
+		  				    	  		{
+		  				    	  			{
+		  				    	  			    put("columna_nombre", "opciones");
+		  				    	  			    put("columna_tipo", "String");
+		  				    	  		  	}
+		  				    	  		}	
+		  				    	    );
 	  				    		}
 	  				    	}
 	  				    );
@@ -87,7 +96,60 @@ public class BDConnection {
 			  				    	  		{
 			  				    	  			{
 			  				    	  			    put("columna_nombre", "opciones");
-			  				    	  			    put("columna_tipo", "String");
+			  				    	  			    //put("columna_tipo", "String");
+			  				    	  			    put("columna_tipo", "Json");
+			  				    	  			    put
+			  				    	  			    (
+			  				    	  			       "json_elements",
+			  				    	  			       new HashMap<Integer,Object>() 
+						  				    	  	   {
+						  				    	  	     {
+						  				    	  	    	put(
+						  				    	  	    		 1,
+						  				    	  	          	 new HashMap<String,Object>() 
+								  				    	  	   	 {
+						  				    	  	        	  	{
+						  				    	  	        	  		put("name_element","velocidad");
+						  				    	  	        	  		put("tipo","Float");
+								  				    	  	     	}
+								  				    	  	     }
+						  				    	  	    	);
+						  				    	  	    	
+						  				    	  	    	put(
+						  				    	  	    		 2,
+						  				    	  	          	 new HashMap<String,Object>() 
+								  				    	  	   	 {
+						  				    	  	        	  	{
+						  				    	  	        	  		put("name_element","unidad_velocidad");
+						  				    	  	        	  		put("tipo","String");
+						  				    	  	        	  		put("default","Km/h");
+								  				    	  	     	}
+								  				    	  	     }
+						  				    	  	    	);
+						  				    	  	    	put(
+						  				    	  	    		 3,
+						  				    	  	          	 new HashMap<String,Object>() 
+								  				    	  	   	 {
+						  				    	  	        	  	{
+						  				    	  	        	  		put("name_element","tiempo");
+						  				    	  	        	  		put("tipo","Float");
+								  				    	  	     	}
+								  				    	  	     }
+						  				    	  	    	);
+						  				    	  	    	put(
+						  				    	  	    		 4,
+						  				    	  	          	 new HashMap<String,Object>() 
+								  				    	  	   	 {
+						  				    	  	        	  	{
+						  				    	  	        	  		put("name_element","unidad_tiempo");
+						  				    	  	        	  		put("tipo","String");
+						  				    	  	        	  		put("default","min.");
+								  				    	  	     	}
+								  				    	  	     }
+						  				    	  	    	);
+						  				    	  	     }
+						  				    	  	   }
+			  				    	  			    );
 			  				    	  		  	}
 			  				    	  		}	
 			  				    	    );
@@ -181,12 +243,74 @@ public class BDConnection {
      * @throws SQLException 
      */
     
-    public boolean insertHistorialDispositivo(int id_dispositivo, double longitud, double latitud) throws SQLException
+    public boolean insertHistorialDispositivo(int id_dispositivo, double longitud, double latitud, String opciones) throws SQLException
     {
     	Map<String,Object> values = new HashMap<>();
     	values.put("geopunto", longitud + "," + latitud);
     	values.put("dispositivo_m2o_id", id_dispositivo);
-    	values.put("opciones", "{}");
+    	
+    	String opts[] = opciones.split(",");
+    	int cont_opts = 0;
+    	JSONObject json = new JSONObject();
+    	for (Map<String,Object> columna : getTablaColumas(key_table_historial_dispositivo)) 
+    	{
+			String tipo = columna.get("columna_tipo").toString();
+			if(tipo.equals("Json"))
+			{
+				HashMap<Integer,Object> json_elements = (HashMap<Integer,Object>)columna.get("json_elements");
+				for (Map.Entry<Integer, Object> e : json_elements.entrySet()) 
+				{
+					HashMap<String,Object> values_e = (HashMap<String,Object>)e.getValue();
+					String _name = values_e.get("name_element").toString();
+					String _tipo = values_e.get("tipo").toString();
+					json.put(_name, opts[cont_opts]);
+					cont_opts++;
+				}
+			}
+		}
+    	String json_opciones = json.toJSONString();
+    	values.put("opciones", json_opciones );
+    	
+    	return insert(key_table_historial_dispositivo, values);
+    }
+    
+    public boolean insertHistorialDispositivoWithRandomOptios(int id_dispositivo, double longitud, double latitud) throws SQLException
+    {
+    	Map<String,Object> values = new HashMap<>();
+    	values.put("geopunto", longitud + "," + latitud);
+    	values.put("dispositivo_m2o_id", id_dispositivo);
+    	
+    	JSONObject json = new JSONObject();
+    	for (Map<String,Object> columna : getTablaColumas(key_table_historial_dispositivo)) 
+    	{
+			String tipo = columna.get("columna_tipo").toString();
+			if(tipo.equals("Json"))
+			{
+				HashMap<Integer,Object> json_elements = (HashMap<Integer,Object>)columna.get("json_elements");
+				for (Map.Entry<Integer, Object> e : json_elements.entrySet()) 
+				{
+					HashMap<String,Object> values_e = (HashMap<String,Object>)e.getValue();
+					String _name = values_e.get("name_element").toString();
+					String _tipo = values_e.get("tipo").toString();
+					String _default = "";
+					switch(_tipo) 
+					{
+						case "String":
+							_default = values_e.containsKey("default") ?  values_e.get("default").toString() : "";
+							break;
+						case "Float":
+							int min = 10;
+							int max = 100;
+							_default = (Math.random()*(max-min+1)+min) + "";
+							break;
+					}
+					json.put(_name, _default);
+				}
+			}
+		}
+    	String json_opciones = json.toJSONString();
+    	values.put("opciones", json_opciones );
+    	
     	return insert(key_table_historial_dispositivo, values);
     }
     
@@ -234,6 +358,9 @@ public class BDConnection {
 					break;
 				case "Datetime":
 					//statement.setDate(count, new Date().new );
+					break;
+				case "Json":
+					statement.setString(count, values.get(nombre).toString() );
 					break;
 				case "String":
 				default:

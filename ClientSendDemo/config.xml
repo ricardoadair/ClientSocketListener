@@ -2,7 +2,7 @@
 <client_send_demo>
 	<configuraciones>
 		<!--Ip servidor-->
-		<server_ip>192.168.74.86</server_ip>
+		<server_ip>192.168.74.83</server_ip>
 		<!--<server_ip>192.168.73.200</server_ip>-->
 		<!--Puerto Destinado al Servicio-->
 		<puerto>5555</puerto>

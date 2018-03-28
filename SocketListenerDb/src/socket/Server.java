@@ -55,15 +55,28 @@ public class Server extends Thread
 		  String[] split_envio = envio.split(";");
 		  if(!envio.toLowerCase().equals("close"))
 		  {
-			  if(split_envio.length == 3)
+			  if(split_envio.length == 3 || split_envio.length == 4)
 			  {
+				  boolean generate_random = split_envio.length != 4;
 				  int id_dispositivo = Integer.parseInt(split_envio[0]);
 				  Double longitud = Double.parseDouble(split_envio[1]);
 				  Double latitud = Double.parseDouble(split_envio[2]);
+				  String opciones = "";
+				  if(generate_random == false)
+				  {
+					  opciones = split_envio[3];
+				  }
 				  boolean result_insert = false;
 				  try 
 				  {
-					result_insert = conection.insertHistorialDispositivo(id_dispositivo, longitud, latitud);
+					if(generate_random == true)
+					{
+						result_insert = conection.insertHistorialDispositivoWithRandomOptios(id_dispositivo, longitud, latitud);
+					}
+					else
+					{
+						result_insert = conection.insertHistorialDispositivo(id_dispositivo, longitud, latitud, opciones);
+					}
 					/*System.out.println("+++++++");
 					new Utilidades().printList(conection.obtenerTodosPuntosDispositivos());
 					System.out.println("+++++++");

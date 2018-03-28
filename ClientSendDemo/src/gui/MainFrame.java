@@ -49,6 +49,14 @@ public class MainFrame extends JFrame
 	private JTextField text_latitud;
 	private JLabel label_longitud;
 	private JTextField text_longitud;
+	
+	private JLabel label_velocidad;
+	private JTextField text_velocidad;
+	private JComboBox cb_unidad_velocidad;
+	private JLabel label_tiempo;
+	private JTextField text_tiempo;
+	private JComboBox cb_unidad_tiempo;
+	
 	private JScrollPane scroll_text_log;
 	private JLabel label_text_log;
 	private JTextArea textarea_log;
@@ -101,7 +109,7 @@ public class MainFrame extends JFrame
 		label_titulo.setForeground( hex2Rgb(color_panel_title_foreground) );
 		
 		button_enviar = new JButton( "Enviar" );
-		button_enviar.setBounds( 665, 35, 100, 30 ); 
+		button_enviar.setBounds( 665, 35, 100, 60 ); 
 		button_enviar.setBackground( hex2Rgb(color_panel_button_background) );
 		button_enviar.setForeground( hex2Rgb(color_panel_button_foreground) );
 		button_enviar.addActionListener( 
@@ -115,11 +123,19 @@ public class MainFrame extends JFrame
 						String t_id_dispotivo =  text_dispositivo_id.getText();
 						String t_latitud =  text_latitud.getText();
 						String t_longitud =  text_longitud.getText();
+						
+						String t_velocidad =  text_velocidad.getText();
+						String t_unidad_velocidad =  (String)cb_unidad_velocidad.getSelectedItem();
+						String t_tiempo =  text_tiempo.getText();
+						String t_unidad_tiempo =  (String)cb_unidad_tiempo.getSelectedItem();;
+						
 						boolean error = false;
 						String error_mensaje = "";
 						int ID_dispositivo = 0;
 						double latitud = 0.0;
 						double longitud = 0.0;
+						double velocidad = 0.0;
+						double tiempo = 0.0;
 						try 
 						{
 							ID_dispositivo = Integer.parseInt(t_id_dispotivo);
@@ -150,6 +166,26 @@ public class MainFrame extends JFrame
 						    error = true;
 						    error_mensaje += "La longidud es incorrecta\n";
 						}
+						try 
+						{
+							velocidad = Double.parseDouble(t_velocidad);
+						} 
+						catch (NumberFormatException e2) 
+						{
+						    //e2.printStackTrace();
+						    error = true;
+						    error_mensaje += "La velocidad es incorrecta\n";
+						}
+						try 
+						{
+							tiempo = Double.parseDouble(t_tiempo);
+						} 
+						catch (NumberFormatException e2) 
+						{
+						    //e2.printStackTrace();
+						    error = true;
+						    error_mensaje += "El tiempo es incorrecto\n";
+						}
 						if(error == true)
 						{
 							error_mensaje = "Favor de verificar: \n" + error_mensaje;
@@ -158,7 +194,7 @@ public class MainFrame extends JFrame
 						else
 						{
 							agregarLineaTextLogConFechaHora("Ingresando punto (latitud, longitud ) del dispositivo ["+ ID_dispositivo +"]: ("+ latitud + "," + longitud + ")" );
-							GeoPoint p = new GeoPoint(ID_dispositivo, longitud, latitud);
+							GeoPoint p = new GeoPoint(ID_dispositivo, longitud, latitud, velocidad, t_unidad_velocidad, tiempo, t_unidad_tiempo);
 							iniciar(p);
 						}
 					}
@@ -167,7 +203,7 @@ public class MainFrame extends JFrame
 		);	
 		
 		button_generar = new JButton( "Enviar punto aleatorio" );
-		button_generar.setBounds( 775, 35, 205, 30 ); 
+		button_generar.setBounds( 775, 35, 205, 60 ); 
 		button_generar.setBackground( hex2Rgb(color_panel_button_background) );
 		button_generar.setForeground( hex2Rgb(color_panel_button_foreground) );
 		button_generar.addActionListener( 
@@ -197,6 +233,16 @@ public class MainFrame extends JFrame
 							ID_dispositivo = (int)(Math.random()*(10-1+1)+1);
 						}
 						random_point.setDispositivoId(ID_dispositivo);
+						Double velocidad = (Math.random()*(100-10+1)+10);
+						Double tiemṕo = (Math.random()*(100-10+1)+10);
+						random_point.setVelocidad(velocidad);
+						random_point.setTiempo(tiemṕo);
+						int unidad_velocidad_index = ((Double)(Math.random()*((cb_unidad_velocidad.getItemCount()-1)-1+1)+1)).intValue();
+						String unidad_velocidad = (String) cb_unidad_velocidad.getItemAt(unidad_velocidad_index);
+						random_point.setUnidadVelocidad(unidad_velocidad);
+						int unidad_tiempo_index = ((Double)(Math.random()*((cb_unidad_tiempo.getItemCount()-1)-1+1)+1)).intValue();
+						String unidad_tiempo = (String) cb_unidad_tiempo.getItemAt(unidad_tiempo_index);
+						random_point.setUnidadTiempo(unidad_tiempo);
 						double latitud = random_point.getLatitud();
 						double longitud = random_point.getLongitud();
 						agregarLineaTextLogConFechaHora("Ingresando punto (latitud, longitud) del dispositivo ["+ ID_dispositivo +"]: ("+latitud + "," + longitud + ")" );
@@ -204,6 +250,10 @@ public class MainFrame extends JFrame
 						text_latitud.setText( String.valueOf(latitud) );
 						text_longitud.setText( String.valueOf(longitud) );
 						text_dispositivo_id.setText( String.valueOf(ID_dispositivo) );
+						text_velocidad.setText( String.valueOf(velocidad) );
+						cb_unidad_velocidad.setSelectedIndex(unidad_velocidad_index);
+						text_tiempo.setText( String.valueOf(tiemṕo) );
+						cb_unidad_tiempo.setSelectedIndex(unidad_tiempo_index);
 					}
 				}	
 			}
@@ -318,6 +368,40 @@ public class MainFrame extends JFrame
 		text_latitud.setBounds( 500, 40, 150, 20);
 		text_latitud.setCaretColor( hex2Rgb(color_panel_cursor_color) );
 		
+		label_velocidad = new JLabel( "Velocidad: " );
+		label_velocidad.setForeground( hex2Rgb(color_panel_label_foreground) );
+		label_velocidad.setBounds( 10, 70, 85, 20);
+		
+		text_velocidad = new JTextField();
+		text_velocidad.setBackground( hex2Rgb(color_panel_textarea_background) );
+		text_velocidad.setForeground( hex2Rgb(color_panel_label_foreground) );
+		text_velocidad.setBorder( BorderFactory.createLineBorder( hex2Rgb(color_panel_border), 1 ) );
+		text_velocidad.setBounds( 95, 70, 150, 20);
+		text_velocidad.setCaretColor( hex2Rgb(color_panel_cursor_color) );
+		
+		cb_unidad_velocidad = new JComboBox(new String[]{"Km/h", "m/s", "mi/h"});
+		cb_unidad_velocidad.setBackground( hex2Rgb(color_panel_textarea_background) );
+		cb_unidad_velocidad.setForeground( hex2Rgb(color_panel_label_foreground) );
+		cb_unidad_velocidad.setBorder( BorderFactory.createLineBorder( hex2Rgb(color_panel_border), 1 ) );
+		cb_unidad_velocidad.setBounds( 255, 70, 80, 20);
+		
+		label_tiempo = new JLabel( "Tiempo: " );
+		label_tiempo.setForeground( hex2Rgb(color_panel_label_foreground) );
+		label_tiempo.setBounds( 345, 70, 75, 20);
+		
+		text_tiempo = new JTextField();
+		text_tiempo.setBackground( hex2Rgb(color_panel_textarea_background) );
+		text_tiempo.setForeground( hex2Rgb(color_panel_label_foreground) );
+		text_tiempo.setBorder( BorderFactory.createLineBorder( hex2Rgb(color_panel_border), 1 ) );
+		text_tiempo.setBounds( 405, 70, 150, 20);
+		text_tiempo.setCaretColor( hex2Rgb(color_panel_cursor_color) );
+		
+		cb_unidad_tiempo = new JComboBox(new String[]{"min.", "hrs.", "segs."});
+		cb_unidad_tiempo.setBackground( hex2Rgb(color_panel_textarea_background) );
+		cb_unidad_tiempo.setForeground( hex2Rgb(color_panel_label_foreground) );
+		cb_unidad_tiempo.setBorder( BorderFactory.createLineBorder( hex2Rgb(color_panel_border), 1 ) );
+		cb_unidad_tiempo.setBounds( 560, 70, 80, 20);
+		
 		label_text_log = new JLabel( "Log" );
 		label_text_log.setForeground( hex2Rgb(color_panel_label_foreground) );
 		label_text_log.setBounds( 10, 55, 200, 20);
@@ -328,7 +412,7 @@ public class MainFrame extends JFrame
 		textarea_log.setEditable(false);
 		
 		scroll_text_log = new JScrollPane( textarea_log, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scroll_text_log.setBounds( new Rectangle( 5, 75, 980, 350 ) );
+		scroll_text_log.setBounds( new Rectangle( 5, 105, 980, 320 ) );
 		scroll_text_log.setBackground( hex2Rgb(color_panel_scroll_background) );
 		scroll_text_log.setBorder( BorderFactory.createLineBorder( hex2Rgb(color_panel_border), 1 ) );
 		scroll_text_log.getVerticalScrollBar().setBackground( hex2Rgb(color_panel_scroll_bar_background) );
@@ -342,6 +426,14 @@ public class MainFrame extends JFrame
 		add( text_longitud );
 		add( label_latitud );
 		add( text_latitud );
+		
+		add( label_velocidad );
+		add( text_velocidad );
+		add( cb_unidad_velocidad );
+		add( label_tiempo );
+		add( text_tiempo);
+		add( cb_unidad_tiempo );
+		
 		add( button_enviar );
 		add( button_generar );
 		//add( label_text_log );

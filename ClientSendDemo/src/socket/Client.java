@@ -50,7 +50,16 @@ public class Client extends Thread
 				String lon = punto.getLongitud().toString();
 				String lat = punto.getLatitud().toString();
 				String id = String.valueOf(punto.getDispositivoId());
-				salida.writeBytes( id + ";" + lon + ";" + lat ); 
+				String opciones = (
+				  punto.getVelocidad().toString() + 
+				  "," + 
+				  punto.getUnidadVelocidad() + 
+				  "," +
+				  punto.getTiempo().toString() +
+				  "," +
+				  punto.getUnidadTiempo()
+				);
+				salida.writeBytes( id + ";" + lon + ";" + lat + ";" + opciones ); 
 				salida.writeBytes(newLine);
 				
 				String mensaje_confirmación = entrada.readUTF();
